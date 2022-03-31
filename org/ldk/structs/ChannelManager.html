@@ -1,0 +1,1221 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>ChannelManager </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../search.js"></script>
+    <script async type="text/javascript" src="../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html"></a></div>
+        <h2 title="Class ChannelManager" class="title">Class ChannelManager</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public class <span class="typeNameLabel"><a href=ChannelManager.html>ChannelManager</a></span>
+extends CommonBase
+                    </pre>
+                    <div class="block"><p>Manager which keeps track of a number of channels and sends messages to the appropriate channel, also tracking HTLC preimages and forwarding onion packets appropriately. Implements ChannelMessageHandler, handling the multi-channel parts and passing things through to individual Channels. Implements Writeable to write out all channel state to disk. Implies peer_disconnected() for all peers during write/read (though does not modify this instance, only the instance being serialized). This will result in any channels which have not yet exchanged funding_created (ie called funding_transaction_generated for outbound channels). Note that you can be a bit lazier about writing out ChannelManager than you can be with ChannelMonitors. With ChannelMonitors you MUST write each monitor update out to disk before returning from chain::Watch::watch_/update_channel, with ChannelManagers, writing updates happens out-of-band (and will prevent any other ChannelManager operations from occurring during the serialization process). If the deserialized version is out-of-date compared to the ChannelMonitors passed by reference to read(), those channels will be force-closed based on the ChannelMonitor state and no funds will be lost (mod on-chain transaction fees). Note that the deserializer is only implemented for (BlockHash, ChannelManager), which tells you the last block hash which was block_connect()ed. You MUST rescan any blocks along the \"reorg path\" (ie call block_disconnected() until you get to a common block and then call block_connected() to step towards your best block) upon deserialization before using the object! Note that ChannelManager is responsible for tracking liveness of its channels and generating ChannelUpdate messages informing peers that the channel is temporarily disabled. To avoid spam due to quick disconnection/reconnection, updates are not sent until the channel has been offline for a full minute. In order to track this, you must call timer_tick_occurred roughly once per minute, though it doesn't have to be perfect. Rather than using a plain ChannelManager, it is preferable to use either a SimpleArcChannelManager a SimpleRefChannelManager, for conciseness. See their documentation for more details, but essentially you should default to using a SimpleRefChannelManager, and use a SimpleArcChannelManager when you require a ChannelManager with a static lifetime, such as when you're using lightning-net-tokio.</p></div>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>static <a href=ChannelManager.html>ChannelManager</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#of(FeeEstimator,Watch,BroadcasterInterface,Logger,KeysInterface,UserConfig,ChainParameters)>of</a>(<a href=FeeEstimator.html>FeeEstimator</a> fee_est, <a href=Watch.html>Watch</a> chain_monitor, <a href=BroadcasterInterface.html>BroadcasterInterface</a> tx_broadcaster, <a href=Logger.html>Logger</a> logger, <a href=KeysInterface.html>KeysInterface</a> keys_manager, <a href=UserConfig.html>UserConfig</a> config, <a href=ChainParameters.html>ChainParameters</a> params) </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new ChannelManager to hold several channels and route between them.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code><a href=UserConfig.html>UserConfig</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#get_current_default_configuration()>get_current_default_configuration</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets the current configuration applied to all new channels, as</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=Result__u832APIErrorZ.html>Result__u832APIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#create_channel(Array,long,long,long,UserConfig)>create_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; their_network_key, long channel_value_satoshis, long push_msat, long user_channel_id, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=UserConfig.html>UserConfig</a> override_config) </code>
+                                            </th>
+                                            <td class="colLast">Creates a new outbound channel to the given remote node and with the given value.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=ChannelDetails.html>ChannelDetails</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#list_channels()>list_channels</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets the list of open channels, in random order.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=ChannelDetails.html>ChannelDetails</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#list_usable_channels()>list_usable_channels</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets the list of usable channels, in random order.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#close_channel(Array)>close_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id) </code>
+                                            </th>
+                                            <td class="colLast">Begins the process of closing a channel.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#close_channel_with_target_feerate(Array,int)>close_channel_with_target_feerate</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id, int target_feerate_sats_per_1000_weight) </code>
+                                            </th>
+                                            <td class="colLast">Begins the process of closing a channel.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#force_close_channel(Array)>force_close_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id) </code>
+                                            </th>
+                                            <td class="colLast">Force closes a channel, immediately broadcasting the latest local commitment transaction to the chain and rejecting new HTLCs on the given channel.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#force_close_all_channels()>force_close_all_channels</a>() </code>
+                                            </th>
+                                            <td class="colLast">Force close all channels, immediately broadcasting the latest local commitment transaction for each to the chain and rejecting new HTLCs on each.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_PaymentIdPaymentSendFailureZ.html>Result_PaymentIdPaymentSendFailureZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#send_payment(Route,Array,Array)>send_payment</a>(<a href=Route.html>Route</a> route, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_secret) </code>
+                                            </th>
+                                            <td class="colLast">Sends a payment along a given route.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_NonePaymentSendFailureZ.html>Result_NonePaymentSendFailureZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#retry_payment(Route,Array)>retry_payment</a>(<a href=Route.html>Route</a> route, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_id) </code>
+                                            </th>
+                                            <td class="colLast">Retries a payment along the given [`Route`].</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#abandon_payment(Array)>abandon_payment</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_id) </code>
+                                            </th>
+                                            <td class="colLast">Signals that no further retries for the given payment will occur.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_C2Tuple_PaymentHashPaymentIdZPaymentSendFailureZ.html>Result_C2Tuple_PaymentHashPaymentIdZPaymentSendFailureZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#send_spontaneous_payment(Route,Array)>send_spontaneous_payment</a>(<a href=Route.html>Route</a> route, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_preimage) </code>
+                                            </th>
+                                            <td class="colLast">Send a spontaneous payment, which is a payment that does not require the recipient to have generated an invoice.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#funding_transaction_generated(Array,Array)>funding_transaction_generated</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; temporary_channel_id, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; funding_transaction) </code>
+                                            </th>
+                                            <td class="colLast">Call this upon creation of a funding transaction for the given channel.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#broadcast_node_announcement(Array,Array,Array)>broadcast_node_announcement</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; rgb, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; alias, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=NetAddress.html>NetAddress</a>&gt; addresses) </code>
+                                            </th>
+                                            <td class="colLast">Regenerates channel_announcements and generates a signed node_announcement from the given arguments, providing them in corresponding events via [`get_and_clear_pending_msg_events`], if at least one public channel has been confirmed on-chain.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#process_pending_htlc_forwards()>process_pending_htlc_forwards</a>() </code>
+                                            </th>
+                                            <td class="colLast">Processes HTLCs which are pending waiting on random forward delay.</td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#timer_tick_occurred()>timer_tick_occurred</a>() </code>
+                                            </th>
+                                            <td class="colLast">Performs actions which should happen on startup and roughly once per minute thereafter.</td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#fail_htlc_backwards(Array)>fail_htlc_backwards</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash) </code>
+                                            </th>
+                                            <td class="colLast">Indicates that the preimage for payment_hash is unknown or the received amount is incorrect after a PaymentReceived event, failing the HTLC back to its origin and freeing resources along the path (including in our own channel on which we received it).</td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#claim_funds(Array)>claim_funds</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_preimage) </code>
+                                            </th>
+                                            <td class="colLast">Provides a payment preimage in response to [`Event::PaymentReceived`], generating any [`MessageSendEvent`]s needed to claim the payment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i19" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#get_our_node_id()>get_our_node_id</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets the node_id held by this ChannelManager</td>
+                                        </tr>
+                                        
+                                        <tr id="i20" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#accept_inbound_channel(Array)>accept_inbound_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; temporary_channel_id) </code>
+                                            </th>
+                                            <td class="colLast">Called to accept a request to open a channel after [`Event::OpenChannelRequest`] has been triggered.</td>
+                                        </tr>
+                                        
+                                        <tr id="i21" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_C2Tuple_PaymentHashPaymentSecretZNoneZ.html>Result_C2Tuple_PaymentHashPaymentSecretZNoneZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#create_inbound_payment(Option_u64Z,int)>create_inbound_payment</a>(<a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs) </code>
+                                            </th>
+                                            <td class="colLast">Gets a payment secret and payment hash for use in an invoice given to a third party wishing to pay us.</td>
+                                        </tr>
+                                        
+                                        <tr id="i22" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_C2Tuple_PaymentHashPaymentSecretZAPIErrorZ.html>Result_C2Tuple_PaymentHashPaymentSecretZAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#create_inbound_payment_legacy(Option_u64Z,int)>create_inbound_payment_legacy</a>(<a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs) </code>
+                                            </th>
+                                            <td class="colLast">Legacy version of [`create_inbound_payment`].</td>
+                                        </tr>
+                                        
+                                        <tr id="i23" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_PaymentSecretNoneZ.html>Result_PaymentSecretNoneZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#create_inbound_payment_for_hash(Array,Option_u64Z,int)>create_inbound_payment_for_hash</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs) </code>
+                                            </th>
+                                            <td class="colLast">Gets a [`PaymentSecret`] for a given [`PaymentHash`], for which the payment preimage is stored external to LDK.</td>
+                                        </tr>
+                                        
+                                        <tr id="i24" class="altColor">
+                                            <td class="colFirst"><code><a href=Result_PaymentSecretAPIErrorZ.html>Result_PaymentSecretAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#create_inbound_payment_for_hash_legacy(Array,Option_u64Z,int)>create_inbound_payment_for_hash_legacy</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs) </code>
+                                            </th>
+                                            <td class="colLast">Legacy version of [`create_inbound_payment_for_hash`].</td>
+                                        </tr>
+                                        
+                                        <tr id="i25" class="rowColor">
+                                            <td class="colFirst"><code><a href=Result_PaymentPreimageAPIErrorZ.html>Result_PaymentPreimageAPIErrorZ</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#get_payment_preimage(Array,Array)>get_payment_preimage</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_secret) </code>
+                                            </th>
+                                            <td class="colLast">Gets an LDK-generated payment preimage from a payment hash and payment secret that were previously returned from [`create_inbound_payment`].</td>
+                                        </tr>
+                                        
+                                        <tr id="i26" class="altColor">
+                                            <td class="colFirst"><code>long</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#get_phantom_scid()>get_phantom_scid</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets a fake short channel id for use in receiving [phantom node payments].</td>
+                                        </tr>
+                                        
+                                        <tr id="i27" class="rowColor">
+                                            <td class="colFirst"><code><a href=PhantomRouteHints.html>PhantomRouteHints</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#get_phantom_route_hints()>get_phantom_route_hints</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets route hints for use in receiving [phantom node payments].</td>
+                                        </tr>
+                                        
+                                        <tr id="i28" class="altColor">
+                                            <td class="colFirst"><code><a href=MessageSendEventsProvider.html>MessageSendEventsProvider</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_MessageSendEventsProvider()>as_MessageSendEventsProvider</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new MessageSendEventsProvider which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        <tr id="i29" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventsProvider.html>EventsProvider</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_EventsProvider()>as_EventsProvider</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new EventsProvider which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        <tr id="i30" class="altColor">
+                                            <td class="colFirst"><code><a href=Listen.html>Listen</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_Listen()>as_Listen</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new Listen which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        <tr id="i31" class="rowColor">
+                                            <td class="colFirst"><code><a href=Confirm.html>Confirm</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_Confirm()>as_Confirm</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new Confirm which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        <tr id="i32" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#await_persistable_update_timeout(long)>await_persistable_update_timeout</a>(long max_wait) </code>
+                                            </th>
+                                            <td class="colLast">Blocks until ChannelManager needs to be persisted or a timeout is reached.</td>
+                                        </tr>
+                                        
+                                        <tr id="i33" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#await_persistable_update()>await_persistable_update</a>() </code>
+                                            </th>
+                                            <td class="colLast">Blocks until ChannelManager needs to be persisted.</td>
+                                        </tr>
+                                        
+                                        <tr id="i34" class="altColor">
+                                            <td class="colFirst"><code><a href=BestBlock.html>BestBlock</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#current_best_block()>current_best_block</a>() </code>
+                                            </th>
+                                            <td class="colLast">Gets the latest best block which was connected either via the [`chain::Listen`] or [`chain::Confirm`] interfaces.</td>
+                                        </tr>
+                                        
+                                        <tr id="i35" class="rowColor">
+                                            <td class="colFirst"><code><a href=ChannelMessageHandler.html>ChannelMessageHandler</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_ChannelMessageHandler()>as_ChannelMessageHandler</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new ChannelMessageHandler which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        <tr id="i36" class="altColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#write()>write</a>() </code>
+                                            </th>
+                                            <td class="colLast">Serialize the ChannelManager object into a byte array which can be read by ChannelManager_read</td>
+                                        </tr>
+                                        
+                                        <tr id="i37" class="rowColor">
+                                            <td class="colFirst"><code><a href=Payer.html>Payer</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ChannelManager.html#as_Payer()>as_Payer</a>() </code>
+                                            </th>
+                                            <td class="colLast">Constructs a new Payer which calls the relevant methods on this_arg.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="of(FeeEstimator,Watch,BroadcasterInterface,Logger,KeysInterface,UserConfig,ChainParameters)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>of</h4>
+                                        <pre class="methodSignature"> static <a href=ChannelManager.html>ChannelManager</a> <a href=ChannelManager.html#of(FeeEstimator,Watch,BroadcasterInterface,Logger,KeysInterface,UserConfig,ChainParameters)>of</a>(<a href=FeeEstimator.html>FeeEstimator</a> fee_est, <a href=Watch.html>Watch</a> chain_monitor, <a href=BroadcasterInterface.html>BroadcasterInterface</a> tx_broadcaster, <a href=Logger.html>Logger</a> logger, <a href=KeysInterface.html>KeysInterface</a> keys_manager, <a href=UserConfig.html>UserConfig</a> config, <a href=ChainParameters.html>ChainParameters</a> params)</pre>
+                                        <div class="block"><p>Constructs a new ChannelManager to hold several channels and route between them. This is the main \"logic hub\" for all channel-related actions, and implements ChannelMessageHandler. Non-proportional fees are fixed according to our risk using the provided fee estimator. panics if channel_value_satoshis is &gt;= `MAX_FUNDING_SATOSHIS`! Users need to notify the new ChannelManager when a new block is connected or disconnected using its `block_connected` and `block_disconnected` methods, starting from after `params.latest_hash`.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="get_current_default_configuration()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>get_current_default_configuration</h4>
+                                        <pre class="methodSignature"> <a href=UserConfig.html>UserConfig</a> <a href=ChannelManager.html#get_current_default_configuration()>get_current_default_configuration</a>()</pre>
+                                        <div class="block"><p>Gets the current configuration applied to all new channels, as</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="create_channel(Array,long,long,long,UserConfig)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create_channel</h4>
+                                        <pre class="methodSignature"> <a href=Result__u832APIErrorZ.html>Result__u832APIErrorZ</a> <a href=ChannelManager.html#create_channel(Array,long,long,long,UserConfig)>create_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; their_network_key, long channel_value_satoshis, long push_msat, long user_channel_id, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=UserConfig.html>UserConfig</a> override_config)</pre>
+                                        <div class="block"><p>Creates a new outbound channel to the given remote node and with the given value. `user_channel_id` will be provided back as in [`Event::FundingGenerationReady::user_channel_id`] to allow tracking of which events correspond with which `create_channel` call. Note that the `user_channel_id` defaults to 0 for inbound channels, so you may wish to avoid using 0 for `user_channel_id` here. `user_channel_id` has no meaning inside of LDK, it is simply copied to events and otherwise ignored. Raises [`APIError::APIMisuseError`] when `channel_value_satoshis` &gt;2**24 or `push_msat` is greater than `channel_value_satoshis * 1k` or `channel_value_satoshis &lt;1000`. Note that we do not check if you are currently connected to the given peer. If no connection is available, the outbound `open_channel` message may fail to send, resulting in the channel eventually being silently forgotten (dropped on reload). Returns the new Channel's temporary `channel_id`. This ID will appear as [`Event::FundingGenerationReady::temporary_channel_id`] and in [`ChannelDetails::channel_id`] until after [`ChannelManager::funding_transaction_generated`] is called, swapping the Channel's ID for one derived from the funding transaction's TXID. If the counterparty rejects the channel immediately, this temporary ID will appear in [`Event::ChannelClosed::channel_id`]. [`Event::FundingGenerationReady::user_channel_id`]: events::Event::FundingGenerationReady::user_channel_id [`Event::FundingGenerationReady::temporary_channel_id`]: events::Event::FundingGenerationReady::temporary_channel_id [`Event::ChannelClosed::channel_id`]: events::Event::ChannelClosed::channel_id Note that override_config (or a relevant inner pointer) may be NULL or all-0s to represent None</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="list_channels()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>list_channels</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=ChannelDetails.html>ChannelDetails</a>&gt; <a href=ChannelManager.html#list_channels()>list_channels</a>()</pre>
+                                        <div class="block"><p>Gets the list of open channels, in random order. See ChannelDetail field documentation for more information.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="list_usable_channels()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>list_usable_channels</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=ChannelDetails.html>ChannelDetails</a>&gt; <a href=ChannelManager.html#list_usable_channels()>list_usable_channels</a>()</pre>
+                                        <div class="block"><p>Gets the list of usable channels, in random order. Useful as an argument to get_route to ensure non-announced channels are used. These are guaranteed to have their [`ChannelDetails::is_usable`] value set to true, see the documentation for [`ChannelDetails::is_usable`] for more info on exactly what the criteria are.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="close_channel(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close_channel</h4>
+                                        <pre class="methodSignature"> <a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a> <a href=ChannelManager.html#close_channel(Array)>close_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id)</pre>
+                                        <div class="block"><p>Begins the process of closing a channel. After this call (plus some timeout), no new HTLCs will be accepted on the given channel, and after additional timeout/the closing of all pending HTLCs, the channel will be closed on chain. If we are the channel initiator, we will pay between our [`Background`] and [`ChannelConfig::force_close_avoidance_max_fee_satoshis`] plus our [`Normal`] fee estimate. If our counterparty is the channel initiator, we will require a channel closing transaction feerate of at least our [`Background`] feerate or the feerate which would appear on a force-closure transaction, whichever is lower. We will allow our counterparty to pay as much fee as they'd like, however. May generate a SendShutdown message event on success, which should be relayed. [`ChannelConfig::force_close_avoidance_max_fee_satoshis`]: crate::util::config::ChannelConfig::force_close_avoidance_max_fee_satoshis [`Background`]: crate::chain::chaininterface::ConfirmationTarget::Background [`Normal`]: crate::chain::chaininterface::ConfirmationTarget::Normal</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="close_channel_with_target_feerate(Array,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close_channel_with_target_feerate</h4>
+                                        <pre class="methodSignature"> <a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a> <a href=ChannelManager.html#close_channel_with_target_feerate(Array,int)>close_channel_with_target_feerate</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id, int target_feerate_sats_per_1000_weight)</pre>
+                                        <div class="block"><p>Begins the process of closing a channel. After this call (plus some timeout), no new HTLCs will be accepted on the given channel, and after additional timeout/the closing of all pending HTLCs, the channel will be closed on chain. `target_feerate_sat_per_1000_weight` has different meanings depending on if we initiated the channel being closed or not: If we are the channel initiator, we will pay at least this feerate on the closing transaction. The upper-bound is set by [`ChannelConfig::force_close_avoidance_max_fee_satoshis`] plus our [`Normal`] fee estimate (or `target_feerate_sat_per_1000_weight`, if it is greater). If our counterparty is the channel initiator, we will refuse to accept a channel closure transaction feerate below `target_feerate_sat_per_1000_weight` (or the feerate which will appear on a force-closure transaction, whichever is lower). May generate a SendShutdown message event on success, which should be relayed. [`ChannelConfig::force_close_avoidance_max_fee_satoshis`]: crate::util::config::ChannelConfig::force_close_avoidance_max_fee_satoshis [`Background`]: crate::chain::chaininterface::ConfirmationTarget::Background [`Normal`]: crate::chain::chaininterface::ConfirmationTarget::Normal</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="force_close_channel(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>force_close_channel</h4>
+                                        <pre class="methodSignature"> <a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a> <a href=ChannelManager.html#force_close_channel(Array)>force_close_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; channel_id)</pre>
+                                        <div class="block"><p>Force closes a channel, immediately broadcasting the latest local commitment transaction to the chain and rejecting new HTLCs on the given channel. Fails if channel_id is unknown to the manager.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="force_close_all_channels()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>force_close_all_channels</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#force_close_all_channels()>force_close_all_channels</a>()</pre>
+                                        <div class="block"><p>Force close all channels, immediately broadcasting the latest local commitment transaction for each to the chain and rejecting new HTLCs on each.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="send_payment(Route,Array,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>send_payment</h4>
+                                        <pre class="methodSignature"> <a href=Result_PaymentIdPaymentSendFailureZ.html>Result_PaymentIdPaymentSendFailureZ</a> <a href=ChannelManager.html#send_payment(Route,Array,Array)>send_payment</a>(<a href=Route.html>Route</a> route, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_secret)</pre>
+                                        <div class="block"><p>Sends a payment along a given route. Value parameters are provided via the last hop in route, see documentation for RouteHop fields for more info. Note that if the payment_hash already exists elsewhere (eg you're sending a duplicative payment), we don't do anything to stop you! We always try to ensure that if the provided next hop knows the preimage to payment_hash they can claim an additional amount as specified in the last hop in the route! Thus, you should probably do your own payment_preimage tracking (which you should already be doing as they represent \"proof of payment\") and prevent double-sends yourself. May generate SendHTLCs message(s) event on success, which should be relayed. Each path may have a different return value, and PaymentSendValue may return a Vec with each entry matching the corresponding-index entry in the route paths, see PaymentSendFailure for more info. In general, a path may raise: APIError::RouteError when an invalid route or forwarding parameter (cltv_delta, fee, node public key) is specified. APIError::ChannelUnavailable if the next-hop channel is not available for updates (including due to previous monitor update failure or new permanent monitor update failure). APIError::MonitorUpdateFailed if a new monitor update failure prevented sending the relevant updates. Note that depending on the type of the PaymentSendFailure the HTLC may have been irrevocably committed to on our end. In such a case, do NOT retry the payment with a different route unless you intend to pay twice! payment_secret is unrelated to payment_hash (or PaymentPreimage) and exists to authenticate the sender to the recipient and prevent payment-probing (deanonymization) attacks. For newer nodes, it will be provided to you in the invoice. If you do not have one, the Route must not contain multiple paths as multi-path payments require a recipient-provided payment_secret. If a payment_secret *is* provided, we assume that the invoice had the payment_secret feature bit set (either as required or as available). If multiple paths are present in the Route, we assume the invoice had the basic_mpp feature set. Note that payment_secret (or a relevant inner pointer) may be NULL or all-0s to represent None</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="retry_payment(Route,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>retry_payment</h4>
+                                        <pre class="methodSignature"> <a href=Result_NonePaymentSendFailureZ.html>Result_NonePaymentSendFailureZ</a> <a href=ChannelManager.html#retry_payment(Route,Array)>retry_payment</a>(<a href=Route.html>Route</a> route, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_id)</pre>
+                                        <div class="block"><p>Retries a payment along the given [`Route`]. Errors returned are a superset of those returned from [`send_payment`], so see [`send_payment`] documentation for more details on errors. This method will also error if the retry amount puts the payment more than 10% over the payment's total amount, if the payment for the given `payment_id` cannot be found (likely due to timeout or success), or if further retries have been disabled with [`abandon_payment`]. [`send_payment`]: [`ChannelManager::send_payment`] [`abandon_payment`]: [`ChannelManager::abandon_payment`]</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="abandon_payment(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>abandon_payment</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#abandon_payment(Array)>abandon_payment</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_id)</pre>
+                                        <div class="block"><p>Signals that no further retries for the given payment will occur. After this method returns, any future calls to [`retry_payment`] for the given `payment_id` will fail with [`PaymentSendFailure::ParameterError`]. If no such event has been generated, an [`Event::PaymentFailed`] event will be generated as soon as there are no remaining pending HTLCs for this payment. Note that calling this method does *not* prevent a payment from succeeding. You must still wait until you receive either a [`Event::PaymentFailed`] or [`Event::PaymentSent`] event to determine the ultimate status of a payment. [`retry_payment`]: Self::retry_payment [`Event::PaymentFailed`]: events::Event::PaymentFailed [`Event::PaymentSent`]: events::Event::PaymentSent</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="send_spontaneous_payment(Route,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>send_spontaneous_payment</h4>
+                                        <pre class="methodSignature"> <a href=Result_C2Tuple_PaymentHashPaymentIdZPaymentSendFailureZ.html>Result_C2Tuple_PaymentHashPaymentIdZPaymentSendFailureZ</a> <a href=ChannelManager.html#send_spontaneous_payment(Route,Array)>send_spontaneous_payment</a>(<a href=Route.html>Route</a> route, @<a href=https://docs.oracle.com/javase/8/docs/api/javax/annotation/Nullable.html>Nullable</a>() <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_preimage)</pre>
+                                        <div class="block"><p>Send a spontaneous payment, which is a payment that does not require the recipient to have generated an invoice. Optionally, you may specify the preimage. If you do choose to specify the preimage, it must be a cryptographically secure random value that no intermediate node would be able to guess -- otherwise, an intermediate node may claim the payment and it will never reach the recipient. See [`send_payment`] documentation for more details on the return value of this function. Similar to regular payments, you MUST NOT reuse a `payment_preimage` value. See [`send_payment`] for more information about the risks of duplicate preimage usage. Note that `route` must have exactly one path. [`send_payment`]: Self::send_payment Note that payment_preimage (or a relevant inner pointer) may be NULL or all-0s to represent None</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="funding_transaction_generated(Array,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>funding_transaction_generated</h4>
+                                        <pre class="methodSignature"> <a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a> <a href=ChannelManager.html#funding_transaction_generated(Array,Array)>funding_transaction_generated</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; temporary_channel_id, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; funding_transaction)</pre>
+                                        <div class="block"><p>Call this upon creation of a funding transaction for the given channel. Returns an [`APIError::APIMisuseError`] if the funding_transaction spent non-SegWit outputs or if no output was found which matches the parameters in [`Event::FundingGenerationReady`]. Returns [`APIError::ChannelUnavailable`] if a funding transaction has already been provided for the channel or if the channel has been closed as indicated by [`Event::ChannelClosed`]. May panic if the output found in the funding transaction is duplicative with some other channel (note that this should be trivially prevented by using unique funding transaction keys per-channel). Do NOT broadcast the funding transaction yourself. When we have safely received our counterparty's signature the funding transaction will automatically be broadcast via the [`BroadcasterInterface`] provided when this `ChannelManager` was constructed. Note that this includes RBF or similar transaction replacement strategies - lightning does not currently support replacing a funding transaction on an existing channel. Instead, create a new channel with a conflicting funding transaction. [`Event::FundingGenerationReady`]: crate::util::events::Event::FundingGenerationReady [`Event::ChannelClosed`]: crate::util::events::Event::ChannelClosed</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="broadcast_node_announcement(Array,Array,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>broadcast_node_announcement</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#broadcast_node_announcement(Array,Array,Array)>broadcast_node_announcement</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; rgb, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; alias, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=NetAddress.html>NetAddress</a>&gt; addresses)</pre>
+                                        <div class="block"><p>Regenerates channel_announcements and generates a signed node_announcement from the given arguments, providing them in corresponding events via [`get_and_clear_pending_msg_events`], if at least one public channel has been confirmed on-chain. This effectively re-broadcasts all channel announcements and sends our node announcement to ensure that the lightning P2P network is aware of the channels we have and our network addresses. `rgb` is a node \"color\" and `alias` is a printable human-readable string to describe this node to humans. They carry no in-protocol meaning. `addresses` represent the set (possibly empty) of socket addresses on which this node accepts incoming connections. These will be included in the node_announcement, publicly tying these addresses together and to this node. If you wish to preserve user privacy, addresses should likely contain only Tor Onion addresses. Panics if `addresses` is absurdly large (more than 500). [`get_and_clear_pending_msg_events`]: MessageSendEventsProvider::get_and_clear_pending_msg_events</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="process_pending_htlc_forwards()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>process_pending_htlc_forwards</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#process_pending_htlc_forwards()>process_pending_htlc_forwards</a>()</pre>
+                                        <div class="block"><p>Processes HTLCs which are pending waiting on random forward delay. Should only really ever be called in response to a PendingHTLCsForwardable event. Will likely generate further events.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="timer_tick_occurred()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>timer_tick_occurred</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#timer_tick_occurred()>timer_tick_occurred</a>()</pre>
+                                        <div class="block"><p>Performs actions which should happen on startup and roughly once per minute thereafter. This currently includes: Increasing or decreasing the on-chain feerate estimates for our outbound channels, Broadcasting `ChannelUpdate` messages if we've been disconnected from our peer for more than a minute, informing the network that they should no longer attempt to route over the channel. Note that this may cause reentrancy through `chain::Watch::update_channel` calls or feerate estimate fetches.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="fail_htlc_backwards(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>fail_htlc_backwards</h4>
+                                        <pre class="methodSignature"> boolean <a href=ChannelManager.html#fail_htlc_backwards(Array)>fail_htlc_backwards</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash)</pre>
+                                        <div class="block"><p>Indicates that the preimage for payment_hash is unknown or the received amount is incorrect after a PaymentReceived event, failing the HTLC back to its origin and freeing resources along the path (including in our own channel on which we received it). Returns false if no payment was found to fail backwards, true if the process of failing the HTLC backwards has been started.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="claim_funds(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>claim_funds</h4>
+                                        <pre class="methodSignature"> boolean <a href=ChannelManager.html#claim_funds(Array)>claim_funds</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_preimage)</pre>
+                                        <div class="block"><p>Provides a payment preimage in response to [`Event::PaymentReceived`], generating any [`MessageSendEvent`]s needed to claim the payment. Note that if you did not set an `amount_msat` when calling [`create_inbound_payment`] or [`create_inbound_payment_for_hash`] you must check that the amount in the `PaymentReceived` event matches your expectation. If you fail to do so and call this method, you may provide the sender \"proof-of-payment\" when they did not fulfill the full expected payment. Returns whether any HTLCs were claimed, and thus if any new [`MessageSendEvent`]s are now pending for processing via [`get_and_clear_pending_msg_events`]. [`Event::PaymentReceived`]: crate::util::events::Event::PaymentReceived [`create_inbound_payment`]: Self::create_inbound_payment [`create_inbound_payment_for_hash`]: Self::create_inbound_payment_for_hash [`get_and_clear_pending_msg_events`]: MessageSendEventsProvider::get_and_clear_pending_msg_events</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="get_our_node_id()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>get_our_node_id</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; <a href=ChannelManager.html#get_our_node_id()>get_our_node_id</a>()</pre>
+                                        <div class="block"><p>Gets the node_id held by this ChannelManager</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="accept_inbound_channel(Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>accept_inbound_channel</h4>
+                                        <pre class="methodSignature"> <a href=Result_NoneAPIErrorZ.html>Result_NoneAPIErrorZ</a> <a href=ChannelManager.html#accept_inbound_channel(Array)>accept_inbound_channel</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; temporary_channel_id)</pre>
+                                        <div class="block"><p>Called to accept a request to open a channel after [`Event::OpenChannelRequest`] has been triggered. The `temporary_channel_id` parameter indicates which inbound channel should be accepted. [`Event::OpenChannelRequest`]: crate::util::events::Event::OpenChannelRequest</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="create_inbound_payment(Option_u64Z,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create_inbound_payment</h4>
+                                        <pre class="methodSignature"> <a href=Result_C2Tuple_PaymentHashPaymentSecretZNoneZ.html>Result_C2Tuple_PaymentHashPaymentSecretZNoneZ</a> <a href=ChannelManager.html#create_inbound_payment(Option_u64Z,int)>create_inbound_payment</a>(<a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs)</pre>
+                                        <div class="block"><p>Gets a payment secret and payment hash for use in an invoice given to a third party wishing to pay us. This differs from [`create_inbound_payment_for_hash`] only in that it generates the [`PaymentHash`] and [`PaymentPreimage`] for you. The [`PaymentPreimage`] will ultimately be returned to you in the [`PaymentReceived`], which will have the [`PaymentReceived::payment_preimage`] field filled in. That should then be passed directly to [`claim_funds`]. See [`create_inbound_payment_for_hash`] for detailed documentation on behavior and requirements. Note that a malicious eavesdropper can intuit whether an inbound payment was created by `create_inbound_payment` or `create_inbound_payment_for_hash` based on runtime. # Note If you register an inbound payment with this method, then serialize the `ChannelManager`, then deserialize it with a node running 0.0.103 and earlier, the payment will fail to be received. Errors if `min_value_msat` is greater than total bitcoin supply. [`claim_funds`]: Self::claim_funds [`PaymentReceived`]: events::Event::PaymentReceived [`PaymentReceived::payment_preimage`]: events::Event::PaymentReceived::payment_preimage [`create_inbound_payment_for_hash`]: Self::create_inbound_payment_for_hash</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="create_inbound_payment_legacy(Option_u64Z,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create_inbound_payment_legacy</h4>
+                                        <pre class="methodSignature"> <a href=Result_C2Tuple_PaymentHashPaymentSecretZAPIErrorZ.html>Result_C2Tuple_PaymentHashPaymentSecretZAPIErrorZ</a> <a href=ChannelManager.html#create_inbound_payment_legacy(Option_u64Z,int)>create_inbound_payment_legacy</a>(<a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs)</pre>
+                                        <div class="block"><p>Legacy version of [`create_inbound_payment`]. Use this method if you wish to share serialized state with LDK node(s) running 0.0.103 and earlier. # Note This method is deprecated and will be removed soon. [`create_inbound_payment`]: Self::create_inbound_payment</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="create_inbound_payment_for_hash(Array,Option_u64Z,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create_inbound_payment_for_hash</h4>
+                                        <pre class="methodSignature"> <a href=Result_PaymentSecretNoneZ.html>Result_PaymentSecretNoneZ</a> <a href=ChannelManager.html#create_inbound_payment_for_hash(Array,Option_u64Z,int)>create_inbound_payment_for_hash</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs)</pre>
+                                        <div class="block"><p>Gets a [`PaymentSecret`] for a given [`PaymentHash`], for which the payment preimage is stored external to LDK. A [`PaymentReceived`] event will only be generated if the [`PaymentSecret`] matches a payment secret fetched via this method or [`create_inbound_payment`], and which is at least the `min_value_msat` provided here, if one is provided. The [`PaymentHash`] (and corresponding [`PaymentPreimage`]) should be globally unique, though note that LDK will not stop you from registering duplicate payment hashes for inbound payments. `min_value_msat` should be set if the invoice being generated contains a value. Any payment received for the returned [`PaymentHash`] will be required to be at least `min_value_msat` before a [`PaymentReceived`] event will be generated, ensuring that we do not provide the sender \"proof-of-payment\" unless they have paid the required amount. `invoice_expiry_delta_secs` describes the number of seconds that the invoice is valid for in excess of the current time. This should roughly match the expiry time set in the invoice. After this many seconds, we will remove the inbound payment, resulting in any attempts to pay the invoice failing. The BOLT spec suggests 3,600 secs as a default validity time for invoices when no timeout is set. Note that we use block header time to time-out pending inbound payments (with some margin to compensate for the inaccuracy of block header timestamps). Thus, in practice we will accept a payment and generate a [`PaymentReceived`] event for some time after the expiry. If you need exact expiry semantics, you should enforce them upon receipt of [`PaymentReceived`]. May panic if `invoice_expiry_delta_secs` is greater than one year. Note that invoices generated for inbound payments should have their `min_final_cltv_expiry` set to at least [`MIN_FINAL_CLTV_EXPIRY`]. Note that a malicious eavesdropper can intuit whether an inbound payment was created by `create_inbound_payment` or `create_inbound_payment_for_hash` based on runtime. # Note If you register an inbound payment with this method, then serialize the `ChannelManager`, then deserialize it with a node running 0.0.103 and earlier, the payment will fail to be received. Errors if `min_value_msat` is greater than total bitcoin supply. [`create_inbound_payment`]: Self::create_inbound_payment [`PaymentReceived`]: events::Event::PaymentReceived</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="create_inbound_payment_for_hash_legacy(Array,Option_u64Z,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create_inbound_payment_for_hash_legacy</h4>
+                                        <pre class="methodSignature"> <a href=Result_PaymentSecretAPIErrorZ.html>Result_PaymentSecretAPIErrorZ</a> <a href=ChannelManager.html#create_inbound_payment_for_hash_legacy(Array,Option_u64Z,int)>create_inbound_payment_for_hash_legacy</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=Option_u64Z.html>Option_u64Z</a> min_value_msat, int invoice_expiry_delta_secs)</pre>
+                                        <div class="block"><p>Legacy version of [`create_inbound_payment_for_hash`]. Use this method if you wish to share serialized state with LDK node(s) running 0.0.103 and earlier. # Note This method is deprecated and will be removed soon. [`create_inbound_payment_for_hash`]: Self::create_inbound_payment_for_hash</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="get_payment_preimage(Array,Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>get_payment_preimage</h4>
+                                        <pre class="methodSignature"> <a href=Result_PaymentPreimageAPIErrorZ.html>Result_PaymentPreimageAPIErrorZ</a> <a href=ChannelManager.html#get_payment_preimage(Array,Array)>get_payment_preimage</a>(<a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_hash, <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; payment_secret)</pre>
+                                        <div class="block"><p>Gets an LDK-generated payment preimage from a payment hash and payment secret that were previously returned from [`create_inbound_payment`]. [`create_inbound_payment`]: Self::create_inbound_payment</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="get_phantom_scid()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>get_phantom_scid</h4>
+                                        <pre class="methodSignature"> long <a href=ChannelManager.html#get_phantom_scid()>get_phantom_scid</a>()</pre>
+                                        <div class="block"><p>Gets a fake short channel id for use in receiving [phantom node payments]. These fake scids are used when constructing the phantom invoice's route hints. [phantom node payments]: crate::chain::keysinterface::PhantomKeysManager</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="get_phantom_route_hints()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>get_phantom_route_hints</h4>
+                                        <pre class="methodSignature"> <a href=PhantomRouteHints.html>PhantomRouteHints</a> <a href=ChannelManager.html#get_phantom_route_hints()>get_phantom_route_hints</a>()</pre>
+                                        <div class="block"><p>Gets route hints for use in receiving [phantom node payments]. [phantom node payments]: crate::chain::keysinterface::PhantomKeysManager</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_MessageSendEventsProvider()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_MessageSendEventsProvider</h4>
+                                        <pre class="methodSignature"> <a href=MessageSendEventsProvider.html>MessageSendEventsProvider</a> <a href=ChannelManager.html#as_MessageSendEventsProvider()>as_MessageSendEventsProvider</a>()</pre>
+                                        <div class="block"><p>Constructs a new MessageSendEventsProvider which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned MessageSendEventsProvider must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_EventsProvider()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_EventsProvider</h4>
+                                        <pre class="methodSignature"> <a href=EventsProvider.html>EventsProvider</a> <a href=ChannelManager.html#as_EventsProvider()>as_EventsProvider</a>()</pre>
+                                        <div class="block"><p>Constructs a new EventsProvider which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned EventsProvider must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_Listen()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_Listen</h4>
+                                        <pre class="methodSignature"> <a href=Listen.html>Listen</a> <a href=ChannelManager.html#as_Listen()>as_Listen</a>()</pre>
+                                        <div class="block"><p>Constructs a new Listen which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned Listen must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_Confirm()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_Confirm</h4>
+                                        <pre class="methodSignature"> <a href=Confirm.html>Confirm</a> <a href=ChannelManager.html#as_Confirm()>as_Confirm</a>()</pre>
+                                        <div class="block"><p>Constructs a new Confirm which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned Confirm must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="await_persistable_update_timeout(long)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>await_persistable_update_timeout</h4>
+                                        <pre class="methodSignature"> boolean <a href=ChannelManager.html#await_persistable_update_timeout(long)>await_persistable_update_timeout</a>(long max_wait)</pre>
+                                        <div class="block"><p>Blocks until ChannelManager needs to be persisted or a timeout is reached. It returns a bool indicating whether persistence is necessary. Only one listener on `await_persistable_update` or `await_persistable_update_timeout` is guaranteed to be woken up. Note that this method is not available with the `no-std` feature.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="await_persistable_update()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>await_persistable_update</h4>
+                                        <pre class="methodSignature"> void <a href=ChannelManager.html#await_persistable_update()>await_persistable_update</a>()</pre>
+                                        <div class="block"><p>Blocks until ChannelManager needs to be persisted. Only one listener on `await_persistable_update` or `await_persistable_update_timeout` is guaranteed to be woken up.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="current_best_block()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>current_best_block</h4>
+                                        <pre class="methodSignature"> <a href=BestBlock.html>BestBlock</a> <a href=ChannelManager.html#current_best_block()>current_best_block</a>()</pre>
+                                        <div class="block"><p>Gets the latest best block which was connected either via the [`chain::Listen`] or [`chain::Confirm`] interfaces.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_ChannelMessageHandler()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_ChannelMessageHandler</h4>
+                                        <pre class="methodSignature"> <a href=ChannelMessageHandler.html>ChannelMessageHandler</a> <a href=ChannelManager.html#as_ChannelMessageHandler()>as_ChannelMessageHandler</a>()</pre>
+                                        <div class="block"><p>Constructs a new ChannelMessageHandler which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned ChannelMessageHandler must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="write()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>write</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html>Array</a>&lt;byte&gt; <a href=ChannelManager.html#write()>write</a>()</pre>
+                                        <div class="block"><p>Serialize the ChannelManager object into a byte array which can be read by ChannelManager_read</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="as_Payer()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>as_Payer</h4>
+                                        <pre class="methodSignature"> <a href=Payer.html>Payer</a> <a href=ChannelManager.html#as_Payer()>as_Payer</a>()</pre>
+                                        <div class="block"><p>Constructs a new Payer which calls the relevant methods on this_arg. This copies the `inner` pointer in this_arg and thus the returned Payer must be freed before this_arg is</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
